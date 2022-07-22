@@ -10,15 +10,33 @@ asectl init aws
 
 * Step 2: Change to directory
 ```bash
+cd /root
+```
+
+* Step 3: Clone the AWS KMS example requirements
+
+```bash
+https://github.com/we45/kms-example.git
+```
+
+* Step 4: Change to directory
+
+```bash
 cd /root/kms-example
 ```
 
-* Step 3: Create a CMK key and export it as environment variable. 
+* Step 5: Create a CMK key and export it as environment variable. 
 ```bash
 export cmk_id=$(aws kms create-key  --tags TagKey=ASE,TagValue=KMS --description "Serverless secure coding" --query KeyMetadata.KeyId --output text)
 ```
 
-* Step 3: Let's run the KMS example
+* Step 6: Let's install the required dependencies  
+```bash
+pip3 install -r requirements.txt 
+```
+
+
+* Step 7: Let's run the KMS example
 ```bash
 python3 app.py
 ```
