@@ -5,34 +5,27 @@ from os import urandom
 import base64
 from Crypto.Cipher import AES
 from flask import render_template
-
+import os
 app = Flask(__name__)
-client = boto3.client('kms')
+kms_client = boto3.client('kms',region_name='us-west-2')
 
 
 def pad(s): return s + (32 - len(s) % 32) * ' '
 
 
-cmk_id = '48e35447-0053-471c-a8c9-cb22cce6a1a7'
-
+cmk_id = os.getenv('cmk_id')
 
 @app.route('/encrypt', methods=['GET'])
 def encrypt():
-    data_key = client.generate_data_key(
-        KeyId=cmk_id,
-        KeySpec="AES_256"
-    )
-    ciphertext_blob = base64.b64encode(data_key.get('CiphertextBlob'))
-    plaintext_key = data_key.get('Plaintext')
-    iv = urandom(16)
-    ccode = str(uuid4())
-    stuff_char = "$"
-    cipher = AES.new(plaintext_key, AES.MODE_CFB, iv)
-    final_ciphertext = stuff_char + iv + stuff_char + cipher.encrypt(pad(ccode))
-    final_64 = base64.b64encode(final_ciphertext)
+    message=b"supersecret"    
+    data_key_response = kms_client.generate_data_key(KeyId=cmk_id, KeySpec='AES_256')
+    data_key_encrypted, data_key_plaintext = data_key_response['CiphertextBlob'],data_key_response['Plaintext']
+    cipher = AES.new(data_key_plaintext, AES.MODE_CFB)
+    encrypted_cipher=cipher.iv + cipher.encrypt(message)
+    final_64 = base64.b64encode(encrypted_cipher)
     return render_template('index.html', CMK_ID=cmk_id,
-                           data_key=ciphertext_blob, ciphertext=final_64, plaintext=ccode)
+                           data_key=data_key_encrypted, ciphertext=final_64, plaintext=message)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
