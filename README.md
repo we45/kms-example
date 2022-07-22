@@ -16,7 +16,7 @@ cd /root
 * Step 3: Clone the AWS KMS example requirements
 
 ```bash
-https://github.com/we45/kms-example.git
+git clone https://github.com/we45/kms-example.git
 ```
 
 * Step 4: Change to directory
@@ -35,11 +35,16 @@ export cmk_id=$(aws kms create-key  --tags TagKey=ASE,TagValue=KMS --description
 pip3 install -r requirements.txt 
 ```
 
-
 * Step 7: Let's run the KMS example
 ```bash
 python3 app.py
 ```
+
+* Step 8: Open new terminal and fetch the serverip and access it on port `5000`
+```bash
+serverip:5000/encrypt
+```
+> Example: http://35.212.166.168:5000/encrypt
 
 ### Teardown
 
